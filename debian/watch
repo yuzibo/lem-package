@@ -1,0 +1,9 @@
+version=4
+opts=\
+repack,repacksuffix=+dfsg,\
+compression=xz,\
+filenamemangle=s/.*?(\d[\d\.-]*@ARCHIVE_EXT@)/lem-$1/ \
+https://github.com/rems-project/lem/tags .*/(\d{4}-\d{2}-\d{2})\.tar\.gz
+
+#https://github.com/rems-project/lem/tags .*/archive/.*/v?([\d\.]+).tar.gz
+

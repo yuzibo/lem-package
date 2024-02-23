@@ -1,0 +1,18 @@
+Description: fix lem lib install path with debian path
+Author: Bo YU <tsu.yubo@gmail.com>
+Forwarded: not-needed
+Last-Update: 2024-03-07
+---
+This patch header follows DEP-3: http://dep.debian.net/deps/dep3/
+--- a/Makefile
++++ b/Makefile
+@@ -6,7 +6,8 @@
+ DDIR=lem-$(LEMVERSION)
+ 
+ # by default assume local install
+-INSTALL_DIR := $(realpath .)
++#INSTALL_DIR := $(realpath .)
++INSTALL_DIR := $(DESTDIR)
+ 
+ #all: il.pdf build-main ilTheory.uo
+ all: bin/lem libs_phase_1

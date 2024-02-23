@@ -1,0 +1,61 @@
+Source: lem
+Priority: optional
+Section: ocaml
+Maintainer: Debian OCaml Maintainers <debian-ocaml-maint@lists.debian.org>
+Uploaders:
+ Bo YU <tsu.yubo@gmail.com>
+Build-Depends: debhelper-compat (= 13),
+ ocaml,
+ ocaml-dune (>= 2.2.0),
+ dh-ocaml (>= 1.2),
+ libzarith-ocaml-dev,
+ libnum-ocaml-dev,
+ ocaml-findlib,
+ ocamlbuild,
+Standards-Version: 4.6.2
+Homepage: https://github.com/rems-project/lem
+Rules-Requires-Root: no
+#Vcs-Git: https://salsa.debian.org/debian/lem-2022-12.git
+#Vcs-Browser: https://salsa.debian.org/debian/lem-2022-12
+
+Package: lem
+Architecture: any
+Depends: ${misc:Depends}, ${shlibs:Depends}, ${ocaml:Depends}
+Provides:
+ ${ocaml:Provides}
+Suggests:
+ ocaml-findlib
+Description: Tool merging math and logic for executable definitions (tool)
+ Lem is a tool for lightweight executable mathematics, for writing,
+ managing, and publishing large-scale portable semantic definitions,
+ with export to LaTeX, executable code (currently OCaml) and
+ interactive theorem provers (currently Coq, HOL4, and Isabelle/HOL).
+ .
+ It is also intended as an intermediate language for generating
+ definitions from domain-specific tools, and for porting definitions
+ between interactive theorem proving systems.
+ .
+
+Package: liblem-ocaml-dev
+Architecture: any
+Depends:
+ ${ocaml:Depends},
+ ${shlibs:Depends},
+ ${misc:Depends},
+ libnum-ocaml-dev,
+ libstdlib-ocaml-dev,
+ libzarith-ocaml-dev,
+Provides: ${ocaml:Provides}
+Suggests:
+ ocaml-findlib
+Description: Tool merging math and logic for executable definitions (development)
+ Lem is a tool for lightweight executable mathematics, for writing,
+ managing, and publishing large-scale portable semantic definitions,
+ with export to LaTeX, executable code (currently OCaml) and
+ interactive theorem provers (currently Coq, HOL4, and Isabelle/HOL).
+ .
+ It is also intended as an intermediate language for generating
+ definitions from domain-specific tools, and for porting definitions
+ between interactive theorem proving systems.
+ .
+ This package contains the development files.

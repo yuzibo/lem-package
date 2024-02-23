@@ -1,0 +1,4 @@
+debian/tmp/lem_zarith @OCamlStdlibDir@ 
+debian/tmp/lem_num @OCamlStdlibDir@ 
+debian/tmp/share/* @OCamlStdlibDir@ 
+debian/tmp/lem/* /usr/lib/ocaml/lem

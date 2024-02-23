@@ -1,0 +1,14 @@
+Description: change lem lib install with debian path 
+Author: Bo YU <tsu.yubo@gmail.com> 
+Forwarded: not-needed
+Last-Update: 2024-03-07
+---
+This patch header follows DEP-3: http://dep.debian.net/deps/dep3/
+--- a/ocaml-lib/ocamlbuild.mk
++++ b/ocaml-lib/ocamlbuild.mk
+@@ -1,4 +1,4 @@
+-INSTALLDIR := $(shell ocamlfind printconf destdir)
++INSTALLDIR := $(DESTDIR)
+ LOCALINSTALDIR := local
+ 
+ all: extract_zarith extract_num

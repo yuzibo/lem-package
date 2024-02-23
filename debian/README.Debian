@@ -1,0 +1,9 @@
+lem-2022-12 for Debian
+
+Many things need to be done if package to Debian.
+
+1. Upstream version conversioned.
+
+2. Enable OCAMLPATH
+
+ -- Bo YU <tsu.yubo@gmail.com>  Fri, 23 Feb 2024 11:18:53 +0800

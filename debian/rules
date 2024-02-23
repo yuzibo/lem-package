@@ -1,0 +1,27 @@
+#!/usr/bin/make -f
+export DH_VERBOSE = 1
+
+include /usr/share/ocaml/ocamlvars.mk
+
+#DESTDIR=$(CURDIR)/debian/tmp/$(OCAML_STDLIB_DIR)
+
+PKGNAME = lem
+
+DEB_MAKE_BUILD_TARGET    := byte-code-library
+ifeq ($(OCAML_HAVE_OCAMLOPT),yes)
+DEB_MAKE_BUILD_TARGET    += native-code-library
+endif
+
+DEB_MAKE_INSTALL_TARGET  := install
+ifeq ($(OCAML_HAVE_OCAMLOPT),yes)
+DEB_MAKE_INSTALL_TARGET  += installopt
+endif
+DEB_MAKE_INSTALL_TARGET  += INSTALLDIR="$(INSTALLDIR)"
+
+
+%:
+	dh $@ --with ocaml
+
+override_dh_auto_build:
+	# work: make "INSTALL_DIR=${DESTDIR}"
+	$(MAKE)

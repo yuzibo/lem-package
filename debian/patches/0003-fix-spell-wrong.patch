@@ -1,0 +1,115 @@
+Description: fix some spell wrong 
+ We didn't modify the code level changes
+Author: Bo YU <tsu.yubo@gmail.com>
+Bug: https://github.com/rems-project/lem/issues/33 
+Last-Update: 2024-03-07
+---
+This patch header follows DEP-3: http://dep.debian.net/deps/dep3/
+--- a/src/reporting.mli
++++ b/src/reporting.mli
+@@ -109,9 +109,9 @@
+   | Warn_import of Ast.l * string * string
+     (** [Warn_import (l, module_name, file_name)] warns about auto-importing module [module_name] from [file_name]. *)
+ 
+-  | Warn_overriden_instance of Ast.l * Types.src_t * Types.instance
+-    (** [Warn_overriden_instance (l, ty, i)] warns that the instance [i] that has already been defined is
+-        overriden for type [ty] at location [l]. *)
++  | Warn_overridden_instance of Ast.l * Types.src_t * Types.instance
++    (** [Warn_overridden_instance (l, ty, i)] warns that the instance [i] that has already been defined is
++        overridden for type [ty] at location [l]. *)
+ 
+   | Warn_ambiguous_code of Ast.l * string
+     (** warn about ambiguous code that could be parsed in several ways and that therefore might confuse users *)
+--- a/src/typecheck_ctxt.mli
++++ b/src/typecheck_ctxt.mli
+@@ -118,7 +118,7 @@
+ (** [ctxt_c_env_set_target_rep l ctxt c targ new_rep] updates the target-representation of
+     constant [c] for target [targ] in context [ctxt] to [new_rep]. This results into a new
+     environment. If an representation was already stored (and is now overridden), it is returned as well. 
+-    If it can't be overriden, an exception is raised. *)
++    If it can't be overridden, an exception is raised. *)
+ val ctxt_c_env_set_target_rep : Ast.l -> defn_ctxt -> Typed_ast.const_descr_ref -> Target.non_ident_target ->
+            Typed_ast.const_target_rep -> defn_ctxt * Typed_ast.const_target_rep option
+ 
+--- a/src/typed_ast.mli
++++ b/src/typed_ast.mli
+@@ -155,7 +155,7 @@
+   | CR_inline of Ast.l * bool * name_lskips_annot list * exp
+     (** [CR_inline (loc, allow_override, vars, e)] means inlining the constant with the expression [e] and
+         replacing the variable [vars] inside [e] with the arguments of the constant. The flag [allow_override] signals whether
+-        the declaration might be safely overriden. Automatically generated target-representations (e.g. for ocaml constructors) should
++        the declaration might be safely overridden. Automatically generated target-representations (e.g. for ocaml constructors) should
+         be changeable by the user, whereas multiple user-defined ones should cause a type error. *)
+   | CR_infix of Ast.l * bool * Ast.fixity_decl * Ident.t
+     (** [CR_infix (loc, allow_override, fixity, i)] declares infix notation for the constant with the giving identifier. *)
+--- a/src/main.ml
++++ b/src/main.ml
+@@ -110,7 +110,7 @@
+     " generate OCaml");
+   ( "-tex", 
+     Arg.Unit (add_backend (Target.Target_no_ident Target.Target_tex)),
+-    " generate LaTeX for each module separatly");
++    " generate LaTeX for each module separately");
+   ( "-tex_all", 
+     Arg.String (fun fn -> tex_all_filename_opt := Some fn),
+     " generate LaTeX in a single file");
+--- a/src/def_trans.ml
++++ b/src/def_trans.ml
+@@ -519,7 +519,7 @@
+           begin
+             match lb with
+               | Let_def(_,_,_) -> 
+-                  raise (Reporting_basic.err_unreachable l "Fancy, top level pattern maching should not have a class constraint. Typechecking should have complained.")
++                  raise (Reporting_basic.err_unreachable l "Fancy, top level pattern matching should not have a class constraint. Typechecking should have complained.")
+ 
+               | Fun_def(sk,fr,topt,clauses) -> build_fun sk fr topt clauses
+ 
+--- a/src/reporting.ml
++++ b/src/reporting.ml
+@@ -78,7 +78,7 @@
+   | Warn_no_decidable_equality of Ast.l * string
+   | Warn_compile_message of Ast.l * Target.target * Path.t * string
+   | Warn_import of Ast.l * string * string
+-  | Warn_overriden_instance of Ast.l * Types.src_t * Types.instance
++  | Warn_overridden_instance of Ast.l * Types.src_t * Types.instance
+   | Warn_ambiguous_code of Ast.l * string
+ 
+ let warn_source_to_string exp def ws =
+@@ -128,7 +128,7 @@
+       let m : string = "importing module '" ^ m_name ^ "' from file '" ^ f_name ^"'" in
+       Some (false, l, m)
+ 
+-  | Warn_overriden_instance (l, ty, i) -> 
++  | Warn_overridden_instance (l, ty, i) ->
+       let class_name =  Path.to_string i.Types.inst_class in
+       let type_name = Types.t_to_string ty.Types.typ in
+       let loc_org = Reporting_basic.loc_to_string false i.Types.inst_l in
+@@ -277,7 +277,7 @@
+   | Warn_record_resorted _ ->                   !warn_ref_rec_resort
+   | Warn_no_decidable_equality _ ->             !warn_ref_no_decidable_eq
+   | Warn_import _ ->                            !warn_ref_import
+-  | Warn_overriden_instance _ ->                !warn_ref_inst_override
++  | Warn_overridden_instance _ ->               !warn_ref_inst_override
+   | Warn_compile_message _ ->                   !warn_ref_compile_message
+   | Warn_ambiguous_code _ ->                    !warn_ref_ambiguous_code
+ 
+@@ -296,7 +296,7 @@
+    ("amb_code",    [warn_ref_ambiguous_code],                  "ambiguous code");
+    ("auto_import", [warn_ref_import],                          "automatically imported modules");
+    ("comp_message",[warn_ref_compile_message],                 "compile messages");
+-   ("inst_over",   [warn_ref_inst_override],                   "overriden instance declarations");
++   ("inst_over",   [warn_ref_inst_override],                   "overridden instance declarations");
+    ("no_dec_eq",   [warn_ref_no_decidable_eq],                 "equality of type is undecidable");
+    ("pat_comp",    [warn_ref_pat_comp],                        "pattern compilation");
+    ("pat_exh",     [warn_ref_pat_exh; warn_ref_def_exh],       "non-exhaustive pattern matches");
+--- a/src/typecheck.ml
++++ b/src/typecheck.ml
+@@ -3353,7 +3353,7 @@
+           let _ =  match Types.get_matching_instance ctxt.all_tdefs (p, src_t.typ) ctxt.all_instances  with
+                      | Some (i, _) -> begin
+                         if i.inst_is_default then () else
+-                        (Reporting.report_warning (defn_ctxt_to_env ctxt) (Reporting.Warn_overriden_instance (l, src_t, i)))
++                        (Reporting.report_warning (defn_ctxt_to_env ctxt) (Reporting.Warn_overridden_instance (l, src_t, i)))
+                      end
+                      | None -> ()
+           in
