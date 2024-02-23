@@ -1,0 +1,78 @@
+(* **************************************************** *)
+(*                                                      *)
+(* A library of additional functions on numbers         *)
+(*                                                      *)
+(* **************************************************** *)
+
+open import Basic_classes
+open import Num
+open import String
+open import Assert_extra
+
+open import {hol} `ASCIInumbersTheory`
+
+declare {hol;isabelle;ocaml;coq} rename module = lem_num_extra
+
+val naturalOfString : string -> natural
+
+declare compile_message naturalOfString = "naturalOfString can fail, potentially with an exception, if the string cannot be parsed"
+declare ocaml target_rep function naturalOfString = `Nat_big_num.of_string_nat`
+declare hol target_rep function naturalOfString = `toNum`
+
+val integerOfString : string -> integer
+
+declare compile_message integerOfString = "integerOfString can fail, potentially with an exception, if the string cannot be parsed"
+declare ocaml target_rep function integerOfString = `Nat_big_num.of_string`
+
+val integerOfChar : char -> integer
+
+let integerOfChar = function
+  | #'0' -> 0
+  | #'1' -> 1
+  | #'2' -> 2
+  | #'3' -> 3
+  | #'4' -> 4
+  | #'5' -> 5
+  | #'6' -> 6
+  | #'7' -> 7
+  | #'8' -> 8
+  | #'9' -> 9
+  | _ -> failwith "integerOfChar: unexpected character"
+end
+
+val integerOfStringHelper : list char -> integer
+
+let rec integerOfStringHelper s = match s with
+  | d :: ds -> integerOfChar d + (10 * integerOfStringHelper ds)
+  | [] -> 0
+end
+
+declare {isabelle} termination_argument integerOfStringHelper = automatic
+
+let ~{ocaml;hol} integerOfString s = match String.toCharList s with
+  | #'-' :: ds -> integerNegate (integerOfStringHelper (List.reverse ds))
+  | ds -> integerOfStringHelper (List.reverse ds)
+end
+
+let {hol} integerOfString s = match s with
+  | cons_string #'-' s' -> integerNegate (integerFromNatural (naturalOfString s'))
+  | _ -> integerFromNatural (naturalOfString s)
+end
+
+assert {ocaml;hol;isabelle} integerOfString_test_1 : (integerOfString "4096" = 4096)
+assert {ocaml;hol;isabelle} integerOfString_test_2 : (integerOfString "-4096" = ~4096)
+
+(* Truncation integer division (round toward zero) *)
+val integerDiv_t: integer -> integer -> integer
+declare ocaml target_rep function integerDiv_t = `Nat_big_num.integerDiv_t`
+declare hol target_rep function integerDiv_t = `$/`
+
+(* Truncation modulo *)
+val integerRem_t: integer -> integer -> integer
+declare ocaml target_rep function integerRem_t = `Nat_big_num.integerRem_t`
+declare hol target_rep function integerRem_t = `$%`
+
+(* Flooring modulo *)
+val integerRem_f: integer -> integer -> integer
+declare ocaml target_rep function integerRem_f = `Nat_big_num.integerRem_f`
+declare hol target_rep function integerRem_f = `$%`

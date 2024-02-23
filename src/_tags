@@ -1,0 +1,5 @@
+<**/*.ml> : annot, package(zarith)
+<**/*.native> : use_str, package(zarith)
+<**/*.d.byte> : use_str, package(zarith)
+<**/*.mli> : annot, package(zarith)
+"ulib" : include

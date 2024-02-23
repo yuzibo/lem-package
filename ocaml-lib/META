@@ -1,0 +1,5 @@
+# META file of package lem:
+description = "Lem library for extracted OCaml"
+requires = "lem_zarith"
+requires(nozarith) = "lem_num"
+version = "0.0.0"
